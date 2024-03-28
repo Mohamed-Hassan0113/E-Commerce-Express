@@ -23,3 +23,11 @@ exports.listProduct = async (req, res) => {
       res.status(500).json({ error: "Internal server error" });
    }
 };
+
+exports.getProductInfo = async (req, res) => {
+   // return product info
+};
+
+exports.updateProduct = async (req, res) => {
+   // update product in DB
+};
