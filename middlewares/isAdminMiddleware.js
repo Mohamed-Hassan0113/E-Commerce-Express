@@ -18,7 +18,7 @@ async function isAdmin(req, res, next) {
          message: "user is not logged in.",
       });
    }
-   const userID = jwt.verify(token, JWT_SECRET).id;
+   // const userID = jwt.verify(token, JWT_SECRET).id;
    const userType = jwt.verify(token, JWT_SECRET).userType;
    // const user = User.findOne({ userID });
    if (userType === "admin") {

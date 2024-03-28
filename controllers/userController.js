@@ -6,27 +6,53 @@ dotenv.config();
 const JWT_SECRET = process.env.JWT_ACCESS_TOKEN_SECRET_KEY;
 
 exports.userData = async (req, res) => {
-   const token = req.cookies.jwt;
-   const userID = jwt.verify(token, JWT_SECRET).id;
-   const user = await User.findById(userID).select("-password");
-
-   if (!user) {
-      return res
-         .status(404)
-         .json({ status: "not found", message: "user not found." });
+   try {
+      const token = req.cookies.jwt;
+      const userID = jwt.verify(token, JWT_SECRET).id;
+      const user = await User.findById(userID).select("-password");
+      res.status(200).json(user);
+   } catch (error) {
+      console.error("Error registering user:", error);
+      res.status(500).json({ error: "Internal server error" });
    }
-
-   res.status(200).json(user);
 };
 
 exports.getAllUser = async (req, res) => {
-   // Fetch all users
+   try {
+      const users = await User.find().exec();
+      res.status(200).json({ data: users });
+   } catch (error) {
+      console.error("Error registering user:", error);
+      res.status(500).json({ error: "Internal server error" });
+   }
 };
 
 exports.deleteUser = async (req, res) => {
-   // Delete a user
+   const token = req.cookies.jwt;
+   const userID = jwt.verify(token, JWT_SECRET).id;
+   try {
+      await User.findOneAndDelete({ _id: userID });
+      res.status(200).json({
+         status: "done",
+         message: "user deleted successfully.",
+      });
+   } catch (error) {
+      console.error("Error registering user:", error);
+      res.status(500).json({ error: "Internal server error" });
+   }
 };
 
 exports.paginatedUsers = async (req, res) => {
-   // Fetch users with pagination
+   const page = parseInt(req.query.page) || 1;
+   const limit = parseInt(req.query.limit) || 10;
+   try {
+      const users = await User.find()
+         .skip((page - 1) * limit)
+         .limit(limit)
+         .exec();
+      res.status(200).json(users);
+   } catch (error) {
+      console.error(error);
+      res.status(500).json({ error: "internal server error" });
+   }
 };
