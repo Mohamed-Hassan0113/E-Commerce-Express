@@ -23,6 +23,7 @@ async function isLogged(req, res, next) {
          });
       }
 
+      req.userID = userID;
       next();
    } catch (error) {
       console.error("Error logging in user:", error);

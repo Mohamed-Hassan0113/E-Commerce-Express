@@ -4,9 +4,11 @@ const bodyParser = require("body-parser");
 const database = require("./config/database");
 const authRoutes = require("./routes/authRoutes");
 const userRoutes = require("./routes/userRoutes");
+const productRoutes = require("./routes/productRoutes");
+const cartRoutes = require("./routes/cartRoutes");
 const cookieParser = require("cookie-parser");
-const validator = require('express-validator')
-const dotenv = require('dotenv')
+const validator = require("express-validator");
+const dotenv = require("dotenv");
 dotenv.config();
 
 const app = express();
@@ -16,9 +18,10 @@ app.use(cookieParser());
 app.use(validator());
 app.use("/auth", authRoutes);
 app.use("/user", userRoutes);
-
+app.use("/product", productRoutes);
+app.use("/cart", cartRoutes);
 
 const PORT = process.env.PORT || 8080;
 app.listen(PORT, () => {
-  console.log(`Server started on port ${PORT}`);
+   console.log(`Server started on port ${PORT}`);
 });

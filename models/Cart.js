@@ -4,13 +4,18 @@ const Schema = mongoose.Schema;
 const cartSchema = new Schema({
    userID: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
+      ref: "UserInfo",
    },
-   product: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Product",
+   products: [
+      {
+         type: mongoose.Schema.Types.ObjectId,
+         ref: "productInfo",
+      },
+   ],
+   totalPrice: {
+      type: Number,
+      default: 0,
    },
-   totalPrice: Number,
 });
 
 module.exports = mongoose.model("cartInfo", cartSchema);

@@ -7,8 +7,7 @@ const JWT_SECRET = process.env.JWT_ACCESS_TOKEN_SECRET_KEY;
 
 exports.userData = async (req, res) => {
    try {
-      const token = req.cookies.jwt;
-      const userID = jwt.verify(token, JWT_SECRET).id;
+      const userID = req.userID;
       const user = await User.findById(userID).select("-password");
       res.status(200).json(user);
    } catch (error) {
@@ -28,8 +27,8 @@ exports.getAllUser = async (req, res) => {
 };
 
 exports.deleteUser = async (req, res) => {
-   const token = req.cookies.jwt;
-   const userID = jwt.verify(token, JWT_SECRET).id;
+   const userID = req.userID;
+   console.log(userID);
    try {
       await User.findOneAndDelete({ _id: userID });
       res.status(200).json({
