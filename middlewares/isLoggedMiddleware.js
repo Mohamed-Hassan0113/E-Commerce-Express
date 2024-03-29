@@ -8,7 +8,7 @@ async function isLogged(req, res, next) {
    const token = req.cookies.jwt;
    try {
       if (!token) {
-         return res.status(402).json({
+         return res.status(401).json({
             status: "denied",
             message: "user not logged in.",
          });
@@ -17,7 +17,7 @@ async function isLogged(req, res, next) {
       const userID = jwt.verify(token, JWT_SECRET).id;
 
       if (!userID) {
-         return res.status(402).json({
+         return res.status(401).json({
             status: "denied",
             message: "invalid token provided",
          });
