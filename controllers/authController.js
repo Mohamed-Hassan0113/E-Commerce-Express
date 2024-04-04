@@ -118,7 +118,7 @@ exports.forgotPassword = async (req, res) => {
          secure: false, // Use `true` for port 465, `false` for all other ports
          auth: {
             user: "lolos.hassan0@gmail.com",
-            pass: "keau wzvi uccp faky",
+            pass: process.env.GMAIL_PASSWORD,
          },
       });
 
