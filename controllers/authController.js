@@ -2,17 +2,14 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const User = require("../models/User");
 const nodeMailer = require("nodemailer");
-const Cart = require("../models/Cart");
 const dotenv = require("dotenv");
 dotenv.config();
 
 const JWT_SECRET = process.env.JWT_ACCESS_TOKEN_SECRET_KEY;
-// const JWT_SECRET = "this is a secret";
-
 exports.register = async (req, res) => {
    const { fname, lname, email, password, confirmPassword, userType } =
       req.body;
-
+   console.log(req.body.toString());
    try {
       req.check("password", "Passwords don't match").equals(confirmPassword);
 
@@ -162,11 +159,6 @@ exports.resetPasswordPost = async (req, res) => {
          });
       }
 
-      // console.log('user found!');
-
-      // const salt = await bcrypt.genSalt();
-      // const hashedNewPassword = await bcrypt.hash(newPassword, salt);
-
       const salt = await bcrypt.genSalt();
       const hashedNewPassword = await bcrypt.hash(newPassword, salt);
 
@@ -182,19 +174,4 @@ exports.resetPasswordPost = async (req, res) => {
       console.error("Error changing password:", error);
       res.status(500).json({ error: "Internal server error" });
    }
-
-   //  exports.isAdmin = async (req, res, next) => {
-   //       const token = req.cookies.jwt;
-
-   //       if(!token){
-   //         res.status(401).json({status: "unauthorized", message: "user is not logged in."})
-   //       }
-   //       const userID = jwt.verify(token, JWT_SECRET).id;
-   //       const user = User.findOne({ userID });
-   //       if(user.userType === "admin"){
-   //         next();
-   //       } else{
-   //         res.status(401).json({status: "unauthorized", message: "user is not logged in."})
-   //       }
-   //     }
 };

@@ -1,6 +1,5 @@
 const Cart = require("../models/Cart");
 const Product = require("../models/Product");
-const { create } = require("../models/User");
 
 exports.addProductToCart = async (req, res) => {
    try {
@@ -14,7 +13,6 @@ exports.addProductToCart = async (req, res) => {
       }
       let productPrice = product.price;
       let userCart = await Cart.findOne({ userID });
-      //   console.log(userCart);
       if (!userCart) {
          userCart = await Cart.create({
             userID,
