@@ -146,8 +146,6 @@ exports.resetPasswordPost = async (req, res) => {
    const newPassword = req.body.newPassword;
    const id = jwt.verify(token, JWT_SECRET).id;
 
-   console.log(id);
-
    try {
       const user = await User.findOne({ _id: id });
 
