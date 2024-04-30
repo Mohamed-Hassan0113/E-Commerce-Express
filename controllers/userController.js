@@ -1,6 +1,7 @@
-const User = require("../models/User");
 const dotenv = require("dotenv");
 dotenv.config();
+
+const User = require("../models/User");
 
 exports.userData = async (req, res) => {
    try {
@@ -25,7 +26,6 @@ exports.getAllUser = async (req, res) => {
 
 exports.deleteUser = async (req, res) => {
    const userID = req.userID;
-   console.log(userID);
    try {
       await User.findOneAndDelete({ _id: userID });
       res.status(200).json({
@@ -42,6 +42,7 @@ exports.paginatedUsers = async (req, res) => {
    const page = parseInt(req.query.page) || 1;
    const limit = parseInt(req.query.limit) || 10;
    try {
+      // Limiting the number of users retrieved from the database.
       const users = await User.find()
          .skip((page - 1) * limit)
          .limit(limit)

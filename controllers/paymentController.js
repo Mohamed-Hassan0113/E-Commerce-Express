@@ -1,10 +1,13 @@
 const stripe = require("stripe")(process.env.STRIPE_SK);
+
 const Transaction = require("../models/Transaction");
 const Cart = require("../models/Cart");
 
 exports.initiatePayment = async (req, res) => {
    try {
+
       const userID = req.userID;
+      
       const cart = await Cart.findOne({ userID }).populate("products").exec();
       const totalPrice = cart.totalPrice;
       const lineItems = cart.products.map((product) => {
@@ -33,6 +36,7 @@ exports.initiatePayment = async (req, res) => {
          amount: totalPrice,
          currency: "usd",
       });
+      
       res.json({ url: session.url });
    } catch (error) {
       console.error(error);
@@ -42,9 +46,11 @@ exports.initiatePayment = async (req, res) => {
 
 exports.webHook = async (req, res) => {
    const sig = req.headers["stripe-signature"];
+   
    const endpointSecret = process.env.WEBHOOK_SK;
    let event;
    try {
+   
       event = stripe.webhooks.constructEvent(req.rawBody, sig, endpointSecret);
 
       switch (event.type) {

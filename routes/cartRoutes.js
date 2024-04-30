@@ -3,8 +3,8 @@ const router = express.Router();
 const cartController = require("../controllers/cartController");
 const isLogged = require("../middlewares/isLoggedMiddleware");
 
-router.post("/addToCart/:productID", isLogged, cartController.addProductToCart);
-router.post("/deleteFromCart/:productID", isLogged, cartController.deleteProductfromCart);
-router.get("/getCartInfo", isLogged, cartController.cartInfo);
+router.put("/add/:productID", isLogged, cartController.addProductToCart);
+router.delete("/delete/:productID", isLogged, cartController.deleteProductfromCart);
+router.get("/info", isLogged, cartController.cartInfo);
 
 module.exports = router;

@@ -1,26 +1,28 @@
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
-const User = require("../models/User");
 const nodeMailer = require("nodemailer");
 const dotenv = require("dotenv");
 dotenv.config();
 
+const User = require("../models/User");
+
 const JWT_SECRET = process.env.JWT_ACCESS_TOKEN_SECRET_KEY;
 exports.register = async (req, res) => {
-   const { fname, lname, email, password, confirmPassword, userType } =
+   const { firstName, lastName, email, password, confirmPassword, userType } =
       req.body;
-   console.log(req.body.toString());
-   try {
-      req.check("password", "Passwords don't match").equals(confirmPassword);
 
+   try {
+      // Check if passwords provided don't match
+      req.check("password", "Passwords don't match").equals(confirmPassword);
       if (req.validationErrors()) {
-         return res.send(req.validationErrors());
+         const errors = req.validationErrors();
+         return res.status(400).json({ errors });
       }
 
       // Check if the user already exists
       const existingUser = await User.findOne({ email });
       if (existingUser) {
-         return res.status(400).json({ error: "User already exists" });
+         return res.status(409).json({ error: "User already exists" });
       }
 
       // Hash the password after generating the Salt
@@ -30,8 +32,8 @@ exports.register = async (req, res) => {
 
       // Create a new user
       const newUser = new User({
-         fname,
-         lname,
+         firstName,
+         lastName,
          email,
          password: hashedPassword,
          userType,
@@ -40,9 +42,6 @@ exports.register = async (req, res) => {
       // Save the user to the database
       await newUser.save();
 
-      console.log("New user saved.");
-
-      console.log(JWT_SECRET);
       // Generate JWT token
       const token = jwt.sign(
          { email: newUser.email, id: newUser._id },
@@ -71,7 +70,7 @@ exports.loginUser = async (req, res) => {
       }
 
       // Check if the password is correct
-      const isPasswordValid = await bcrypt.compare(password, user.password);
+      const isPasswordValid = bcrypt.compare(password, user.password);
       if (!isPasswordValid) {
          return res.status(401).json({ error: "Invalid credentials" });
       }
@@ -91,7 +90,7 @@ exports.loginUser = async (req, res) => {
          maxAge: 1000 * 60 * 60 * 3,
       });
 
-      res.status(200).json({ status: "ok", data: token });
+      res.status(200).json({ data: token });
    } catch (error) {
       console.error("Error logging in user:", error);
       res.status(500).json({ error: "Internal server error" });
@@ -105,34 +104,34 @@ exports.forgotPassword = async (req, res) => {
       // check if the email exists
       const user = await User.findOne({ email });
       if (!user) {
-         return res.status(401).json({ error: "user doesn't exist" });
+         return res.status(404).json({ error: "user doesn't exist" });
       }
 
       // send email
       const transporter = nodeMailer.createTransport({
          host: "smtp.gmail.com",
          port: 587,
-         secure: false, // Use `true` for port 465, `false` for all other ports
+         secure: false,
          auth: {
-            user: "lolos.hassan0@gmail.com",
+            user: process.env.GMAIL_EMAIL,
             pass: process.env.GMAIL_PASSWORD,
          },
       });
 
-      const token = await jwt.sign({ id: user._id }, JWT_SECRET, {
+      const token = jwt.sign({ id: user._id }, JWT_SECRET, {
          expiresIn: 60 * 3,
       });
 
       const mailOptions = {
-         from: "lolos.hassan0@gmail.com",
+         from: `${process.env.GMAIL_EMAIL}`,
          to: email,
          subject: "Your password reset request",
          text: `We have received a request to reset the password of the
                  account attached to the email address ${email}.
-                 kindly follow the link below: localhost:3000/auth/reset-password/query?token=${token}`,
+                 kindly follow the link below: localhost:3000/auth/resetPassword/query?token=${token}`,
       };
+      await transporter.sendMail(mailOptions);
 
-      const info = await transporter.sendMail(mailOptions);
       console.log("Email sent to: ", email);
       res.status(200).json({ status: "ok", data: "email sent" });
    } catch (error) {
@@ -141,27 +140,24 @@ exports.forgotPassword = async (req, res) => {
    }
 };
 
-exports.resetPasswordPost = async (req, res) => {
-   const token = req.query.token;
+exports.resetPassword = async (req, res) => {
    const newPassword = req.body.newPassword;
+
+   const token = req.query.token;
    const id = jwt.verify(token, JWT_SECRET).id;
 
    try {
       const user = await User.findOne({ _id: id });
-
       if (!user) {
-         console.log("invalid token verified");
-         res.status(401).json({
-            status: "unauthorized",
-            message: "couldn't verify token",
+         return res.status(404).json({
+            status: "not found",
+            message: "User not found",
          });
       }
 
       const salt = await bcrypt.genSalt();
       const hashedNewPassword = await bcrypt.hash(newPassword, salt);
-
       user.password = hashedNewPassword;
-
       user.save();
 
       res.status(200).json({

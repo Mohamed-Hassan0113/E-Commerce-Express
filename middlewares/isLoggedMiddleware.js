@@ -7,6 +7,7 @@ const JWT_SECRET = process.env.JWT_ACCESS_TOKEN_SECRET_KEY;
 async function isLogged(req, res, next) {
    const token = req.cookies.jwt;
    try {
+      // Check if a token is provided in the cookies or not.
       if (!token) {
          return res.status(401).json({
             status: "denied",
@@ -16,6 +17,7 @@ async function isLogged(req, res, next) {
 
       const userID = jwt.verify(token, JWT_SECRET).id;
 
+      // Checking token validity.
       if (!userID) {
          return res.status(401).json({
             status: "denied",
@@ -23,6 +25,7 @@ async function isLogged(req, res, next) {
          });
       }
 
+      // Passing the userID in the req.
       req.userID = userID;
       next();
    } catch (error) {
