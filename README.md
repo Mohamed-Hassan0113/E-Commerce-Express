@@ -70,3 +70,5 @@ Before running the project locally, ensure you have the following installed:
   - `/product`: CRUD operations for managing products.
   - `/cart`: Operations to manipulate the cart of the user.
   - `/payment`: Endpoints for processing payments using Stripe.
+
+- Make sure to create some dummy user accounts with one that has the role of "admin" to be able to try features that need login, also some dummy products.
